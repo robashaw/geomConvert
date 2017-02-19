@@ -105,7 +105,9 @@ def dihedral(xyzarr, i, j, k, l):
     x = np.dot(v1, v2)
     y = np.dot(m1, v2)
     chi = np.arctan2(y, x)
-    chi = 180.0 * chi / np.pi
+    chi = -180.0 - 180.0 * chi / np.pi
+    if (chi < -180.0):
+        chi = chi + 360.0
     return chi
 
 def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
@@ -186,50 +188,57 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
 
     xyzarr = np.zeros([npart, 3])
     if (npart > 1):
-        xyzarr[1] = [0.0, 0.0, rlist[0]]
+        xyzarr[1] = [rlist[0], 0.0, 0.0]
 
     if (npart > 2):
         i = rconnect[1] - 1
         j = aconnect[0] - 1
         r = rlist[1]
         theta = alist[0] * np.pi / 180.0
-        z = r * np.cos(theta)
+        x = r * np.cos(theta)
         y = r * np.sin(theta)
         a_i = xyzarr[i]
-        b_ij = xyzarr[j]-xyzarr[i]
-        if (b_ij[2] > 0):
-            z = a_i[2] + z
-            y = a_i[1] + y
-        else:
-            z = a_i[2] - z
+        b_ij = xyzarr[j] - xyzarr[i]
+        if (b_ij[0] < 0):
+            x = a_i[0] - x
             y = a_i[1] - y
-        xyzarr[2] = [0.0, y, z]
+        else:
+            x = a_i[0] + x
+            y = a_i[1] + y
+        xyzarr[2] = [x, y, 0.0]
 
     for n in range(3, npart):
-        i = rconnect[n-1] - 1
-        j = aconnect[n-2] - 1
-        k = dconnect[n-3] - 1
         r = rlist[n-1]
         theta = alist[n-2] * np.pi / 180.0
         phi = dlist[n-3] * np.pi / 180.0
-        x = r * np.cos(theta)
-        y = r * np.cos(phi) * np.sin(theta)
-        z = r * np.sin(phi) * np.sin(theta)
-        a = xyzarr[i]
+        
+        sinTheta = np.sin(theta)
+        cosTheta = np.cos(theta)
+        sinPhi = np.sin(phi)
+        cosPhi = np.cos(phi)
+
+        x = r * cosTheta
+        y = r * cosPhi * sinTheta
+        z = r * sinPhi * sinTheta
+        
+        i = rconnect[n-1] - 1
+        j = aconnect[n-2] - 1
+        k = dconnect[n-3] - 1
+        a = xyzarr[k]
         b = xyzarr[j]
-        c = xyzarr[k]
+        c = xyzarr[i]
+        
         ab = b - a
         bc = c - b
         bc = bc / np.linalg.norm(bc)
-        nvec = np.cross(ab, bc)
-        nvec = nvec / np.linalg.norm(nvec)
-        ncbc = np.cross(nvec, bc)
-        M = np.zeros([3, 3])
-        M[0][:] = bc
-        M[1][:] = ncbc
-        M[2][:] = nvec
-        xyzvec = [-x, y, z]
-        xyzarr[n] = np.dot(M, xyzvec) + a
+        nv = np.cross(ab, bc)
+        nv = nv / np.linalg.norm(nv)
+        ncbc = np.cross(nv, bc)
+        
+        new_x = c[0] - bc[0] * x + ncbc[0] * y + nv[0] * z
+        new_y = c[1] - bc[1] * x + ncbc[1] * y + nv[1] * z
+        new_z = c[2] - bc[2] * x + ncbc[2] * y + nv[2] * z
+        xyzarr[n] = [new_x, new_y, new_z]
             
     for i in range(npart):
         print '{:<4s}\t{:>11.5f}\t{:>11.5f}\t{:>11.5f}'.format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2])

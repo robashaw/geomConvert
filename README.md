@@ -29,13 +29,16 @@ The default is to print the values of distances/angles/dihedrals. These can inst
 
 respectively.
 
-To convert from Z-matrix to XYZ (CURRENTLY IN DEVELOPMENT): 
+To convert from Z-matrix to XYZ:
 
 python gc.py -zmat test.zmat
 
 for files containing a Z-matrix
 
-This assumes that the Z-matrix has values not variables for distances/angles/dihedrals. These can instead be assumed to be variables with the options
+This assumes that the Z-matrix has values not variables for distances/angles/dihedrals. 
+
+TO BE DONE:
+These will instead be assumed to be variables with the options
 
 --rvar=True
 
@@ -43,6 +46,6 @@ This assumes that the Z-matrix has values not variables for distances/angles/dih
 
 --dvar=True
 
-respectively. This will only work if all such quantities are given as variables, however.
+respectively. This will only work if all such quantities are given as variables, however, and is currently not implemented.
 
 
