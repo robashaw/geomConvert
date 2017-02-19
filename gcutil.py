@@ -209,19 +209,27 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
         i = rconnect[n-1] - 1
         j = aconnect[n-2] - 1
         k = dconnect[n-3] - 1
-        a_i = xyzarr[i]
-        r_ni = rlist[n-1]
-        theta_nij = alist[n-2] * np.pi / 180.0
-        phi_nijk = dlist[n-3] * np.pi / 180.0
-        b_ij = xyzarr[j] - xyzarr[i]
-        b_ij = b_ij / np.linalg.norm(b_ij)
-        b_ik = xyzarr[k] - xyzarr[i]
-        b_ik = b_ik / np.linalg.norm(b_ik)
-        b_ijk = np.cross(b_ij, b_ik) / np.sin(angle(xyzarr, k, i, j))
-        r = np.cos(phi_nijk)*np.cross(b_ijk, b_ij) - np.sin(phi_nijk)*b_ijk
-        r = np.cos(theta_nij)*b_ij + np.sin(theta_nij)*r
-        r = a_i + r_ni * r
-        xyzarr[n] = r
+        r = rlist[n-1]
+        theta = alist[n-2] * np.pi / 180.0
+        phi = dlist[n-3] * np.pi / 180.0
+        x = r * np.cos(theta)
+        y = r * np.cos(phi) * np.sin(theta)
+        z = r * np.sin(phi) * np.sin(theta)
+        a = xyzarr[i]
+        b = xyzarr[j]
+        c = xyzarr[k]
+        ab = b - a
+        bc = c - b
+        bc = bc / np.linalg.norm(bc)
+        nvec = np.cross(ab, bc)
+        nvec = nvec / np.linalg.norm(nvec)
+        ncbc = np.cross(nvec, bc)
+        M = np.zeros([3, 3])
+        M[0][:] = bc
+        M[1][:] = ncbc
+        M[2][:] = nvec
+        xyzvec = [-x, y, z]
+        xyzarr[n] = np.dot(M, xyzvec) + a
             
     for i in range(npart):
         print '{:<4s}\t{:>11.5f}\t{:>11.5f}\t{:>11.5f}'.format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2])
