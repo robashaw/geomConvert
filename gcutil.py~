@@ -191,19 +191,13 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
     if (npart > 2):
         i = rconnect[1] - 1
         j = aconnect[0] - 1
-        r = rlist[1]
+        r = xyzarr[i]
+        b_ij = xyzarr[j] - xyzarr[i]
+        b_ij = b_ij / np.linalg.norm(b_ij)
         theta = alist[0] * np.pi / 180.0
-        z = r * np.cos(theta)
-        y = r * np.sin(theta)
-        a_i = xyzarr[i]
-        b_ij = xyzarr[j]-xyzarr[i]
-        if (b_ij[2] > 0):
-            z = a_i[2] + z
-            y = a_i[1] + y
-        else:
-            z = a_i[2] - z
-            y = a_i[1] - y
-        xyzarr[2] = [0.0, y, z]
+        print theta, rlist[1]
+        r = r + rlist[1] * np.cos(theta) * b_ij
+        xyzarr[2] = r 
 
     for n in range(3, npart):
         i = rconnect[n-1] - 1
