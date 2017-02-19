@@ -14,9 +14,13 @@ python gc.py -xyz test.xyz
 for files in XYZ format, i.e.
 
 Number of atoms
+
 TITLE CARD
+
 Atom x y z
+
 Atom x y z
+
 ...
 
 The default is to print the values of distances/angles/dihedrals. These can instead be printed as variables with the options
