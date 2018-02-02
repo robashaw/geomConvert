@@ -22,6 +22,18 @@
 
 import numpy as np
 
+def replace_vars(vlist, variables):
+    for i in range(len(vlist)):
+        if vlist[i] in variables:
+            value = variables[vlist[i]]
+            vlist[i] = value
+        else:
+            try:
+                value = float(vlist[i])
+                vlist[i] = value
+            except:
+                print "Problem with entry " + str(vlist[i])
+
 def readxyz(filename):
     xyzf = open(filename, 'r')
     xyzarr = np.zeros([1, 3])
@@ -54,25 +66,41 @@ def readzmat(filename):
     alist = []
     dconnect = []
     dlist = []
+    variables = {}
     
     if not zmatf.closed:
         for line in zmatf:
             words = line.split()
-            if len(words) > 0:
-                atomnames.append(words[0])
-            if len(words) > 1:
-                rconnect.append(int(words[1]))
-            if len(words) > 2:
-                rlist.append(float(words[2]))
-            if len(words) > 3:
-                aconnect.append(int(words[3]))
-            if len(words) > 4:
-                alist.append(float(words[4]))
-            if len(words) > 5:
-                dconnect.append(int(words[5]))
-            if len(words) > 6:
-                dlist.append(float(words[6]))
-
+            eqwords = line.split('=')
+            
+            if len(eqwords) > 1:
+                varname = str(eqwords[0])
+                try:
+                    varval  = float(eqwords[1])
+                    variables[varname] = varval
+                except:
+                    print "Invalid variable definition: " + line
+            
+            else:
+                if len(words) > 0:
+                    atomnames.append(words[0])
+                if len(words) > 1:
+                    rconnect.append(int(words[1]))
+                if len(words) > 2:
+                    rlist.append(words[2])
+                if len(words) > 3:
+                    aconnect.append(int(words[3]))
+                if len(words) > 4:
+                    alist.append(words[4])
+                if len(words) > 5:
+                    dconnect.append(int(words[5]))
+                if len(words) > 6:
+                    dlist.append(words[6])
+    
+    replace_vars(rlist, variables)
+    replace_vars(alist, variables)
+    replace_vars(dlist, variables)
+    
     return (atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist) 
 
 def distance_matrix(xyzarr):
