@@ -19,10 +19,11 @@
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE 
 # OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # 
-# Usage: python gc.py -xyz [file to convert]
-# or     python gc.py -zmat [file to convert]
+# Usage: python3 gc.py -xyz [file to convert]
+# or     python3 gc.py -zmat [file to convert]
 # possible flags for zmatrix printing are:
 # --rvar/avar/dvar = True/False
+# --allvar = True/False (sets all above)
 
 import numpy as np
 import argparse
@@ -34,18 +35,23 @@ parser.add_argument("-zmat", dest="zmatfile", required=False, type=str, help="Fi
 parser.add_argument("--rvar", dest="rvar", required=False, type=bool, default=False, help="Print distances as variables")
 parser.add_argument("--avar", dest="avar", required=False, type=bool, default=False, help="Print angles as variables")
 parser.add_argument("--dvar", dest="dvar", required=False, type=bool, default=False, help="Print dihedrals as variables") 
+parser.add_argument("--allvar", dest="allvar", required=False, type=bool, default=False, help="Print all values as variables")
 args = parser.parse_args()
 
 xyzfilename = args.xyzfile
 zmatfilename = args.zmatfile
 xyz = np.array
+rvar = args.rvar or args.allvar
+avar = args.avar or args.allvar
+dvar = args.dvar or args.allvar
+
 if (xyzfilename == None and zmatfilename == None):
-    print "Please specify an input geometry"
+    print("Please specify an input geometry")
 
 elif (zmatfilename == None):
     xyzarr, atomnames = gc.readxyz(xyzfilename)
     distmat = gc.distance_matrix(xyzarr)
-    gc.write_zmat(xyzarr, distmat, atomnames, rvar=args.rvar, avar=args.avar, dvar=args.dvar)
+    gc.write_zmat(xyzarr, distmat, atomnames, rvar=rvar, avar=avar, dvar=dvar)
 else:
     atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist = gc.readzmat(zmatfilename)
     gc.write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist)

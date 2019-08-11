@@ -5,13 +5,13 @@ RECENTLY ADDED: when converting from zmat to xyz, variables can now be read with
 
 Running the below will print the output to the standard output stream (i.e. the terminal in most cases); this can be piped into a file in the usual way, e.g.
 
-python gc.py -xyz test.xyz > test.zmat
+python3 gc.py -xyz test.xyz > test.zmat
 
 ## Usage
 
 To convert from XYZ to Z-matrix:
 
-python gc.py -xyz test.xyz 
+python3 gc.py -xyz test.xyz 
 
 for files in XYZ format, i.e.
 
@@ -31,7 +31,11 @@ The default is to print the values of distances/angles/dihedrals. These can inst
 --avar=True
 --dvar=True
 
-respectively.
+respectively. Alternative
+
+--allvar=True
+
+will set all the above to true.
 
 To convert from Z-matrix to XYZ:
 

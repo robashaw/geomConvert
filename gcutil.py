@@ -32,7 +32,7 @@ def replace_vars(vlist, variables):
                 value = float(vlist[i])
                 vlist[i] = value
             except:
-                print "Problem with entry " + str(vlist[i])
+                print("Problem with entry " + str(vlist[i]))
 
 def readxyz(filename):
     xyzf = open(filename, 'r')
@@ -79,7 +79,7 @@ def readzmat(filename):
                     varval  = float(eqwords[1])
                     variables[varname] = varval
                 except:
-                    print "Invalid variable definition: " + line
+                    print("Invalid variable definition: " + line)
             
             else:
                 if len(words) > 0:
@@ -145,7 +145,7 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
     dlist = []
     if npart > 0:
         # Write the first atom
-        print atomnames[0]
+        print(atomnames[0])
         
         if npart > 1:
             # and the second, with distance from first
@@ -155,7 +155,7 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
                 r = 'R1'
             else:
                 r = '{:>11.5f}'.format(rlist[0])
-            print '{:<3s} {:>4d}  {:11s}'.format(n, 1, r)
+            print('{:<3s} {:>4d}  {:11s}'.format(n, 1, r))
             
             if npart > 2:
                 n = atomnames[2]
@@ -172,7 +172,7 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
                 else:
                     t = '{:>11.5f}'.format(alist[0])
 
-                print '{:<3s} {:>4d}  {:11s} {:>4d}  {:11s}'.format(n, 1, r, 2, t)
+                print('{:<3s} {:>4d}  {:11s} {:>4d}  {:11s}'.format(n, 1, r, 2, t))
                 
                 if npart > 3:
                     for i in range(3, npart):
@@ -195,24 +195,24 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
                             d = 'D{:<4d}'.format(i-2)
                         else:
                             d = '{:>11.5f}'.format(dlist[i-3])
-                        print '{:3s} {:>4d}  {:11s} {:>4d}  {:11s} {:>4d}  {:11s}'.format(n, i-2, r, i-1, t, i, d)
+                        print('{:3s} {:>4d}  {:11s} {:>4d}  {:11s} {:>4d}  {:11s}'.format(n, i-2, r, i-1, t, i, d))
     if (rvar):
-        print " "
+        print(" ")
         for i in range(npart-1):
-            print 'R{:<4d} = {:>11.5f}'.format(i+1, rlist[i])
+            print('R{:<4d} = {:>11.5f}'.format(i+1, rlist[i]))
     if (avar):
-        print " "
+        print(" ")
         for i in range(npart-2):
-            print 'A{:<4d} = {:>11.5f}'.format(i+1, alist[i])
+            print('A{:<4d} = {:>11.5f}'.format(i+1, alist[i]))
     if (dvar):
-        print " "
+        print(" ")
         for i in range(npart-3):
-            print 'D{:<4d} = {:>11.5f}'.format(i+1, dlist[i])
+            print('D{:<4d} = {:>11.5f}'.format(i+1, dlist[i]))
 
 def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
     npart = len(atomnames)
-    print npart
-    print 'INSERT TITLE CARD HERE'
+    print(npart)
+    print('INSERT TITLE CARD HERE')
 
     xyzarr = np.zeros([npart, 3])
     if (npart > 1):
@@ -269,4 +269,4 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
         xyzarr[n] = [new_x, new_y, new_z]
             
     for i in range(npart):
-        print '{:<4s}\t{:>11.5f}\t{:>11.5f}\t{:>11.5f}'.format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2])
+        print('{:<4s}\t{:>11.5f}\t{:>11.5f}\t{:>11.5f}'.format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2]))
