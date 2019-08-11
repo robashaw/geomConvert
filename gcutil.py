@@ -74,7 +74,7 @@ def readzmat(filename):
             eqwords = line.split('=')
             
             if len(eqwords) > 1:
-                varname = str(eqwords[0])
+                varname = str(eqwords[0]).strip()
                 try:
                     varval  = float(eqwords[1])
                     variables[varname] = varval
