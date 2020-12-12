@@ -21,6 +21,7 @@
 # Utilities for gc.py
 
 import numpy as np
+from scipy.spatial.distance import cdist
 
 def replace_vars(vlist, variables):
     for i in range(len(vlist)):
@@ -104,13 +105,7 @@ def readzmat(filename):
     return (atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist) 
 
 def distance_matrix(xyzarr):
-    npart, ncoord = xyzarr.shape
-    dist_mat = np.zeros([npart, npart])
-    for i in range(npart):
-        for j in range(0, i):
-            rvec = xyzarr[i] - xyzarr[j]
-            dist_mat[i][j] = dist_mat[j][i] = np.sqrt(np.dot(rvec, rvec))
-    return dist_mat
+    return cdist(xyzarr, xyzarr)
 
 def angle(xyzarr, i, j, k):
     rij = xyzarr[i] - xyzarr[j]
