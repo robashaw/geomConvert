@@ -1,0 +1,29 @@
+Cu      
+O       1       rCuO
+O       1       rOCu    2       aOCuO
+H       3       rHO     2       aHOO    1       dHOOCu
+C       2       rCO     3       aCOO    4       dCOOH
+H       5       rH1C    2       aH1CO   1       dH1COCu
+H       5       rH2C    2       aH2CO   1       dH2COCu
+H       5       rH3C    2       aH2CO   1       dH3COCu
+
+rCuO=1.79703
+rOCu=2.703
+rHO=0.96000
+rCO=1.43000
+rH1C=1.07
+rH2C=1.07
+rH3C=1.07
+
+aOCuO=176.99
+aHOO=123.252
+aCOO=119.959
+aH1CO=109.471
+aH2CO=109.471
+aH3CO=109.471
+
+dHOOCu=-60.000
+dCOOH=143.578
+dH1COCu=-96.695
+dH2COCu=143.305
+dH3COCu=23.305

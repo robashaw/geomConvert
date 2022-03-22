@@ -24,18 +24,24 @@ import numpy as np
 from scipy.spatial.distance import cdist
 
 def replace_vars(vlist, variables):
-    for i in range(len(vlist)):
-        if vlist[i] in variables:
-            value = variables[vlist[i]]
-            vlist[i] = value
+    """ Replaces a list of variable names (vlist) with their values
+        from a dictionary (variables).
+    """
+    for i, v in enumerate(vlist):
+        if v in variables:
+            vlist[i] = variables[v]
         else:
             try:
-                value = float(vlist[i])
-                vlist[i] = value
+                # assume the "variable" is a number
+                vlist[i] = float(v)
             except:
-                print("Problem with entry " + str(vlist[i]))
+                print("Problem with entry " + str(v))
 
 def readxyz(filename):
+    """ Reads in a .xyz file in the standard format,
+        returning xyz coordinates as a numpy array
+        and a list of atom names.
+    """
     xyzf = open(filename, 'r')
     xyzarr = np.zeros([1, 3])
     atomnames = []
@@ -59,15 +65,18 @@ def readxyz(filename):
     return (xyzarr, atomnames)
 
 def readzmat(filename):
+    """ Reads in a z-matrix in standard format,
+        returning a list of atoms and coordinates.
+    """
     zmatf = open(filename, 'r')
     atomnames = []
-    rconnect = []
-    rlist = []
-    aconnect = []
-    alist = []
-    dconnect = []
-    dlist = []
-    variables = {}
+    rconnect = []  # bond connectivity
+    rlist = []     # list of bond length values
+    aconnect = []  # angle connectivity
+    alist = []     # list of bond angle values
+    dconnect = []  # dihedral connectivity
+    dlist = []     # list of dihedral values
+    variables = {} # dictionary of named variables
     
     if not zmatf.closed:
         for line in zmatf:
@@ -75,6 +84,7 @@ def readzmat(filename):
             eqwords = line.split('=')
             
             if len(eqwords) > 1:
+                # named variable found 
                 varname = str(eqwords[0]).strip()
                 try:
                     varval  = float(eqwords[1])
@@ -83,6 +93,9 @@ def readzmat(filename):
                     print("Invalid variable definition: " + line)
             
             else:
+                # no variable, just a number
+                # valid line has form
+                # atomname index1 bond_length index2 bond_angle index3 dihedral
                 if len(words) > 0:
                     atomnames.append(words[0])
                 if len(words) > 1:
@@ -98,6 +111,7 @@ def readzmat(filename):
                 if len(words) > 6:
                     dlist.append(words[6])
     
+    # replace named variables with their values
     replace_vars(rlist, variables)
     replace_vars(alist, variables)
     replace_vars(dlist, variables)
@@ -105,18 +119,29 @@ def readzmat(filename):
     return (atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist) 
 
 def distance_matrix(xyzarr):
+    """Returns the pairwise distance matrix between atom
+       from a set of xyz coordinates 
+    """
     return cdist(xyzarr, xyzarr)
 
 def angle(xyzarr, i, j, k):
+    """Return the bond angle in degrees between three atoms 
+       with indices i, j, k given a set of xyz coordinates.
+       atom j is the central atom
+    """
     rij = xyzarr[i] - xyzarr[j]
     rkj = xyzarr[k] - xyzarr[j]
     cos_theta = np.dot(rij, rkj)
     sin_theta = np.linalg.norm(np.cross(rij, rkj))
     theta = np.arctan2(sin_theta, cos_theta)
-    theta = 180.0 * theta / np.pi
+    theta = 180.0 * theta / np.pi 
     return theta
 
 def dihedral(xyzarr, i, j, k, l):
+    """Return the dihedral angle in degrees between four atoms 
+       with indices i, j, k, l given a set of xyz coordinates.
+       connectivity is i->j->k->l
+    """
     rji = xyzarr[j] - xyzarr[i]
     rkj = xyzarr[k] - xyzarr[j]
     rlk = xyzarr[l] - xyzarr[k]
@@ -134,10 +159,13 @@ def dihedral(xyzarr, i, j, k, l):
     return chi
 
 def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
+    """Prints a z-matrix from xyz coordinates, distances, and atomnames,
+       optionally with the coordinate values replaced with variables.
+    """
     npart, ncoord = xyzarr.shape
-    rlist = []
-    alist = []
-    dlist = []
+    rlist = [] # list of bond lengths
+    alist = [] # list of bond angles (degrees)
+    dlist = [] # list of dihedral angles (degrees)
     if npart > 0:
         # Write the first atom
         print(atomnames[0])
@@ -205,15 +233,20 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
             print('D{:<4d} = {:>11.5f}'.format(i+1, dlist[i]))
 
 def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
+    """Prints out an xyz file from a decomposed z-matrix"""
     npart = len(atomnames)
     print(npart)
     print('INSERT TITLE CARD HERE')
-
+    
+    # put the first atom at the origin
     xyzarr = np.zeros([npart, 3])
     if (npart > 1):
+        # second atom at [r01, 0, 0]
         xyzarr[1] = [rlist[0], 0.0, 0.0]
 
     if (npart > 2):
+        # third atom in the xy-plane
+        # such that the angle a012 is correct 
         i = rconnect[1] - 1
         j = aconnect[0] - 1
         r = rlist[1]
@@ -231,6 +264,8 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
         xyzarr[2] = [x, y, 0.0]
 
     for n in range(3, npart):
+        # back-compute the xyz coordinates
+        # from the positions of the last three atoms
         r = rlist[n-1]
         theta = alist[n-2] * np.pi / 180.0
         phi = dlist[n-3] * np.pi / 180.0
@@ -263,5 +298,6 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
         new_z = c[2] - bc[2] * x + ncbc[2] * y + nv[2] * z
         xyzarr[n] = [new_x, new_y, new_z]
             
+    # print results
     for i in range(npart):
         print('{:<4s}\t{:>11.5f}\t{:>11.5f}\t{:>11.5f}'.format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2]))
