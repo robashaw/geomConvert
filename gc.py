@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # UTILITY TO CONVERT BETWEEN XYZ AND Z-MATRIX GEOMETRIES
 # Copyright 2017 Robert A Shaw
 #
