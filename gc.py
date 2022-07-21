@@ -36,6 +36,8 @@ parser.add_argument("--rvar", dest="rvar", required=False, type=bool, default=Fa
 parser.add_argument("--avar", dest="avar", required=False, type=bool, default=False, help="Print angles as variables")
 parser.add_argument("--dvar", dest="dvar", required=False, type=bool, default=False, help="Print dihedrals as variables") 
 parser.add_argument("--allvar", dest="allvar", required=False, type=bool, default=False, help="Print all values as variables")
+parser.add_argument("--precision", dest="precision", required=False, type=int, default=8, help="Sets the precision of coordinates and distances")
+parser.add_argument("--angle_precision", dest="angle_precision", required=False, type=int, default=5, help="Sets the precision of angles")
 args = parser.parse_args()
 
 xyzfilename = args.xyzfile
@@ -44,6 +46,8 @@ xyz = np.array
 rvar = args.rvar or args.allvar
 avar = args.avar or args.allvar
 dvar = args.dvar or args.allvar
+precision = args.precision
+angle_precision = args.angle_precision
 
 if (xyzfilename == None and zmatfilename == None):
     print("Please specify an input geometry")
@@ -51,7 +55,7 @@ if (xyzfilename == None and zmatfilename == None):
 elif (zmatfilename == None):
     xyzarr, atomnames = gc.readxyz(xyzfilename)
     distmat = gc.distance_matrix(xyzarr)
-    gc.write_zmat(xyzarr, distmat, atomnames, rvar=rvar, avar=avar, dvar=dvar)
+    gc.write_zmat(xyzarr, distmat, atomnames, rvar=rvar, avar=avar, dvar=dvar, distprecision=precision, angleprecision=angle_precision)
 else:
     atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist = gc.readzmat(zmatfilename)
-    gc.write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist)
+    gc.write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist, precision=precision)

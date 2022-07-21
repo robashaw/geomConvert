@@ -158,10 +158,13 @@ def dihedral(xyzarr, i, j, k, l):
         chi = chi + 360.0
     return chi
 
-def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
+def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False, distprecision=8, angleprecision=5):
     """Prints a z-matrix from xyz coordinates, distances, and atomnames,
        optionally with the coordinate values replaced with variables.
     """
+    distformat = '{:>' + str(distprecision + 6) + '.' + str(distprecision) + 'f}'
+    angleformat = '{:>' + str(angleprecision + 6) + '.' + str(angleprecision) + 'f}'
+
     npart, ncoord = xyzarr.shape
     rlist = [] # list of bond lengths
     alist = [] # list of bond angles (degrees)
@@ -177,7 +180,7 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
             if (rvar):
                 r = 'R1'
             else:
-                r = '{:>11.5f}'.format(rlist[0])
+                r = distformat.format(rlist[0])
             print('{:<3s} {:>4d}  {:11s}'.format(n, 1, r))
             
             if npart > 2:
@@ -187,13 +190,13 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
                 if (rvar):
                     r = 'R2'
                 else:
-                    r = '{:>11.5f}'.format(rlist[1])
+                    r = distformat.format(rlist[1])
                 
                 alist.append(angle(xyzarr, 2, 0, 1))
                 if (avar):
                     t = 'A1'
                 else:
-                    t = '{:>11.5f}'.format(alist[0])
+                    t = angleformat.format(alist[0])
 
                 print('{:<3s} {:>4d}  {:11s} {:>4d}  {:11s}'.format(n, 1, r, 2, t))
                 
@@ -205,35 +208,37 @@ def write_zmat(xyzarr, distmat, atomnames, rvar=False, avar=False, dvar=False):
                         if (rvar):
                             r = 'R{:<4d}'.format(i)
                         else:
-                            r = '{:>11.5f}'.format(rlist[i-1])
+                            r = distformat.format(rlist[i-1])
 
                         alist.append(angle(xyzarr, i, i-3, i-2))
                         if (avar):
                             t = 'A{:<4d}'.format(i-1)
                         else:
-                            t = '{:>11.5f}'.format(alist[i-2])
+                            t = angleformat.format(alist[i-2])
                         
                         dlist.append(dihedral(xyzarr, i, i-3, i-2, i-1))
                         if (dvar):
                             d = 'D{:<4d}'.format(i-2)
                         else:
-                            d = '{:>11.5f}'.format(dlist[i-3])
+                            d = angleformat.format(dlist[i-3])
                         print('{:3s} {:>4d}  {:11s} {:>4d}  {:11s} {:>4d}  {:11s}'.format(n, i-2, r, i-1, t, i, d))
     if (rvar):
         print(" ")
         for i in range(npart-1):
-            print('R{:<4d} = {:>11.5f}'.format(i+1, rlist[i]))
+            print('R{:<4d} = '.format(i+1) + distformat.format(rlist[i]))
     if (avar):
         print(" ")
         for i in range(npart-2):
-            print('A{:<4d} = {:>11.5f}'.format(i+1, alist[i]))
+            print('A{:<4d} = '.format(i+1) + angleformat.format(alist[i]))
     if (dvar):
         print(" ")
         for i in range(npart-3):
-            print('D{:<4d} = {:>11.5f}'.format(i+1, dlist[i]))
+            print('D{:<4d} = '.format(i+1) + angleformat.format(dlist[i]))
 
-def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
+def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist, precision=8):
     """Prints out an xyz file from a decomposed z-matrix"""
+    coordformat = '{:>' + str(precision + 6) + '.' + str(precision) + 'f}'
+
     npart = len(atomnames)
     print(npart)
     print('INSERT TITLE CARD HERE')
@@ -300,4 +305,4 @@ def write_xyz(atomnames, rconnect, rlist, aconnect, alist, dconnect, dlist):
             
     # print results
     for i in range(npart):
-        print('{:<4s}\t{:>11.5f}\t{:>11.5f}\t{:>11.5f}'.format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2]))
+        print(('{:<4s}\t' + coordformat + '\t' + coordformat + '\t' + coordformat).format(atomnames[i], xyzarr[i][0], xyzarr[i][1], xyzarr[i][2]))
